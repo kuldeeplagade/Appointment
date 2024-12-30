@@ -17,11 +17,21 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users =User::all();
-        return ApiResponse::success('All Users Restrived Sucessfully',[
-            'users'=>$users
-        ],200);
+        $user = auth()->user(); // Get the authenticated user
+    
+        if ($user->role === 'admin') {
+            // Admin can see all users
+            $users = User::all();
+        } else {
+            // Regular user can only see their own details
+            $users = User::where('id', $user->id)->get();
+        }
+    
+        return ApiResponse::success('Users retrieved successfully', [
+            'users' => $users
+        ], 200);
     }
+    
 
     /**
      * Show the form for creating a new resource.

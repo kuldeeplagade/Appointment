@@ -101,4 +101,31 @@ class AppointmentController extends Controller
     {
         //
     }
+
+    public function updateStatus(Request $request, Appointment $appointment)
+    {
+        // Validate the request input
+        $request->validate([
+            'status' => [
+                'required',
+                Rule::in(['Pending', 'Confirmed', 'Cancelled']),
+            ],
+        ]);
+
+        // Check if the authenticated user is an admin
+        if (auth()->user()->role !== 'admin') {
+            return response()->json(['message' => 'Access denied.'], 403);
+        }
+
+        // Update the status
+        $appointment->status = $request->status;
+        $appointment->save();
+
+        // Return the updated appointment details
+        return response()->json([
+            'message' => 'Appointment status updated successfully.',
+            'appointment' => $appointment,
+        ]);
+    }
+
 }
